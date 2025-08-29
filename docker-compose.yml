@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  graphql-api:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    restart: unless-stopped
+    
+  # Development service with volume mounting for hot reload
+  graphql-dev:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    profiles:
+      - dev
