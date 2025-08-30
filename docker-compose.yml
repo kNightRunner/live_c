@@ -1,24 +1,28 @@
-version: '3.8'
-
 services:
   graphql-api:
-    build: .
+    build:
+      context: .
+      target: production
     container_name: graphql-api
     ports:
       - "4000:4000"
     environment:
-      - NODE_ENV=production
-      - PORT=4000
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      - ENABLE_SANDBOX=${ENABLE_SANDBOX}
     restart: unless-stopped
-    
+
   graphql-dev:
-    build: .
+    build:
+      context: .
+      target: base
     container_name: graphql-dev
     ports:
       - "4000:4000"
     environment:
-      - NODE_ENV=development
-      - PORT=4000
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      - ENABLE_SANDBOX=${ENABLE_SANDBOX}
     volumes:
       - .:/app
       - /app/node_modules
@@ -26,3 +30,12 @@ services:
     profiles:
       - dev
     restart: unless-stopped
+
+  tests:
+    build:
+      context: .
+      target: test
+    container_name: graphql-tests
+    command: npm test
+    profiles:
+      - test

@@ -7,7 +7,8 @@ A simple GraphQL API server built with **Apollo Server**, **TypeScript**, and **
 - GraphQL API with `getUser` and `listUsers` queries
 - TypeScript implementation
 - Automated test suite with Jest
-- Docker containerization (production + development with hot reload)
+- Docker containerization (production, development with hot reload, and test profile)
+- Configurable CORS and Sandbox via environment variables
 - In-memory data storage (no external DB required)
 
 ---
@@ -22,12 +23,12 @@ npm install
 
 ## ▶️ Usage
 
-### Run Tests
+### Run Tests (local)
 ```bash
 npm test
 ```
 
-### Start Server (Local, compiled)
+### Start Server (local, compiled)
 ```bash
 npm run build
 npm start
@@ -42,7 +43,7 @@ npm run dev
 
 ## 🐳 Docker
 
-This project includes a ready-to-use **docker-compose.yml**.
+This project includes a ready-to-use **docker-compose.yml** with multiple profiles.
 
 ### Run in Production
 ```bash
@@ -54,8 +55,13 @@ docker-compose up graphql-api
 ```bash
 docker-compose --profile dev up graphql-dev
 ```
-➡️ Mounts your local source code into the container and runs with `ts-node --watch`.  
-Useful for live development.
+➡️ Mounts your local source code into the container and runs with `ts-node --watch`.
+
+### Run Tests in Docker
+```bash
+docker-compose --profile test up --abort-on-container-exit --exit-code-from tests
+```
+➡️ Spins up a test container and executes Jest inside Docker.
 
 ### Build and Run Manually
 ```bash
@@ -101,9 +107,10 @@ query {
 
 ```
 src/
-├── schema.ts       # GraphQL schema and resolvers
-├── server.ts       # Apollo Server setup
-└── schema.test.ts  # Test suite
+├── schema.ts        # GraphQL schema and resolvers
+├── server.ts        # Apollo Server setup
+tests/
+└── schema.test.ts   # Test suite
 ```
 
 ---
@@ -122,5 +129,9 @@ To evaluate locally, please use the Docker or npm instructions above.
 
 ## 🔧 Environment Variables
 
+All configuration is driven by `.env` (see `.env.example`):
+
 - `PORT` → Server port (default: `4000`)  
 - `NODE_ENV` → Environment mode (`development`, `production`)  
+- `ENABLE_SANDBOX` → `true` to enable Apollo Sandbox landing page (default: `false`)  
+- `CORS_ORIGIN` → Comma-separated list of allowed origins (default: `https://studio.apollographql.com,*.github.dev`)  

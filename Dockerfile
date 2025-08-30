@@ -1,26 +1,23 @@
-# Use Node.js 18 LTS
-FROM node:18-alpine
-
-# Set working directory
+# ---------- base: dependencies + source ----------
+FROM node:18-alpine AS base
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install ALL deps (including dev) to allow build
-RUN npm install
-
-# Copy source code
+RUN npm ci
 COPY . .
 
-# Build the TypeScript code
+# ---------- test: run jest ----------
+FROM base AS test
+CMD ["npm", "test"]
+
+# ---------- build: compile TypeScript and keep only prod deps ----------
+FROM base AS build
 RUN npm run build
+RUN npm ci --omit=dev
 
-# Remove devDependencies to slim down image
-RUN npm prune --production
-
-# Expose port
+# ---------- production: lightweight runtime ----------
+FROM node:18-alpine AS production
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app ./
 EXPOSE 4000
-
-# Start the application (compiled JS)
 CMD ["npm", "start"]
