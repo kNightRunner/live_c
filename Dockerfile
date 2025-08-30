@@ -7,14 +7,20 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL deps (including dev) to allow build
+RUN npm install
 
 # Copy source code
 COPY . .
 
+# Build the TypeScript code
+RUN npm run build
+
+# Remove devDependencies to slim down image
+RUN npm prune --production
+
 # Expose port
 EXPOSE 4000
 
-# Start the application
+# Start the application (compiled JS)
 CMD ["npm", "start"]
